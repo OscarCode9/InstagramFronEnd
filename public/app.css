@@ -6347,13 +6347,12 @@ body {
   width: 11%; }
 
 .card small.time {
-  line-height: 48px; }
+  line-height: 18px; }
 
 .card p {
   padding: 20px 0; }
 
 .card .likes {
-  line-height: 30px;
   margin-left: 32px; }
 
 .card i {

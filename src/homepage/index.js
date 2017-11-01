@@ -11,7 +11,7 @@ var yo = require('yo-yo');
 
  
 
-page('/', header,loading, asyncLoad, function (ctx, next) {
+page('/', header,loading, loadPicturesFetch, function (ctx, next) {
   title('O-events');
   var main = document.getElementById('main-container');
     
@@ -56,7 +56,7 @@ function resetCam(a){
             uploadButton.off('click');    
             uploadButton.click(()=>{
                 const pic = {
-                    url: data_uri,
+                    src: data_uri,
                     likes:0,
                     liked: false,
                     createdAt: new Date(),
@@ -120,6 +120,7 @@ function loadPicturesFetch(ctx, next) {
       return res.json();
     })
     .then(function (pictures) {
+      console.log(pictures)
       ctx.pictures = pictures;
       next();
     })
@@ -131,6 +132,7 @@ function loadPicturesFetch(ctx, next) {
 async function asyncLoad(ctx, next) {
   try {
     ctx.pictures = await fetch('/api/pictures').then(res => res.json());
+    console.log(ctx.pictures)
     next();
   } catch (err) {
     return console.log(err);

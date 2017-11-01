@@ -1,15 +1,17 @@
 import yo from 'yo-yo' 
 import layout from '../layout'
 var translate = require('../translate').message;
-export default function userPageTem(user){ var el = yo`
+export default function userPageTem(user){ 
+    console.log(user)
+    var el = yo`
 <div class="container user-page">
     <div class="row">
         <div class="col s12 m10 offset-m1 l8 offset-l2 center-align heading">
             <div class="row">
                 <div class="col s12 m10 offset-m1 l3 offset-l2 center"> <img src="${user.avatar}" class="responsive-img circle"> </div>
                 <div class="col s12 m10 offset-m1 l6 left-align">
-                    <h2 class="hide-on-large-only center-align">${user.username}</h2>
-                    <h2 class="hide-on-med-and-down left-align">${user.username}</h2> </div>
+                    <h2 class="hide-on-large-only center-align">${user.name}</h2>
+                    <h2 class="hide-on-med-and-down left-align">${user.name}</h2> </div>
             </div>
         </div>
         <div class="row"> ${user.pictures.map(function(picture){ return yo`
