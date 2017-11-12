@@ -16,7 +16,13 @@ const config = {
     }
 
   },
-  secret: process.env.PLATZIGRAM_SECRET || 'pla4tzi'
+  secret: process.env.PLATZIGRAM_SECRET || 'pla4tzi',
+
+  AWSconfig: {
+    key: process.env.AWSKEY,
+    secret: process.env.AWSSECRET,
+    bucket: process.env.BUCKET
+  }
 
 }
 module.exports = config

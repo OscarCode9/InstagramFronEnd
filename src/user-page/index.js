@@ -3,15 +3,15 @@ import header from '../header'
 import title from 'title'
 import empty from 'empty-element'
 import tem from './temple'
-
-page('/:username', header,loadUser, function (ctx,next) {
+import utils from '../utils'
+page('/:username',utils.loadAuth, header,loadUser, function (ctx,next) {
 
 	var main = document.getElementById('main-container')
 	title(`Ovents| ${ctx.params.username}`)
 	empty(main).appendChild(tem(ctx.user))
 
 })
-page('/:username/:id', header,loadUser, function (ctx,next) {
+page('/:username/:id',utils.loadAuth , header,loadUser, function (ctx,next) {
 
 	var main = document.getElementById('main-container')
 	title(`Ovents| ${ctx.params.username}`)

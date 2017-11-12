@@ -65,7 +65,7 @@ function toggleButtons() {
       .post('/api/pictures')
       .send(data)
       .end(function (err, res) {
-        console.log(arguments);
+        console.log(res);
       })
   }
 

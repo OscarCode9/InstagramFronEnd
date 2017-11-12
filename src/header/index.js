@@ -2,28 +2,43 @@ var yo = require('yo-yo');
 var translate = require('../translate');
 var empty = require('empty-element');
 
-var el = yo`<nav class="header">
-<div class="nav-wrapper">
-  <div class="container">
-    <div class="row">
+var el =function (ctx){
+  var auth;
+  
+if(ctx.auth) {
+   auth= yo`
+   <div class="col s2 m6 push-s10 push-m10">
+     <a href="#!" class="btn btn-large btn-flat dropdown-button" data-activates="dropdown1">
+        ${ctx.auth.name}
+       <i class="fa fa-user" aria-hidden="true"></i>
+     </a>
+     <ul id="dropdown1" class="dropdown-content">
+       <li><a href="/logout" rel="external">Salir</a></li>
+     </ul>
+   </div>`
+}else{
+  auth = yo`<div class="col s2 m6 push-s10 push-m10">
+  <a href="/signin" class="btn btn-large btn-flat">
+  ${translate.message('signin')}
+  </a>
+</div>`
+}
+  return yo`
+<nav class="header">
+  <div class="nav-wrapper">
+    <div class="container">
+      <div class="row">
         <div class="col s12 m6 offset-m1">
           <a href="/" class="brand-logo platzigram">O-events</a>
         </div>
-        <div class="col s2 m6 push-s10 push-m10">
-          <a href="#" class="btn btn-large btn-flat dropdown-button" data-activates="drop-user">
-            <i class="fa fa-user" aria-hidden="true"></i>
-          </a>
-          <ul id="drop-user" class="drop-content" style="width: 72px; position: absolute; top: 0px; left: 10.5px; opacity: 1; display: none;">
-            <li><a href="#">Salir</a></li>
-          </ul>
-        </div>
+        ${auth}
+      </div>
     </div>
   </div>
-</div>
-</nav>`;
+</nav>`;}
 module.exports = function header(ctx, next) {
   var cont = document.getElementById('header-container')
-  empty(cont).appendChild(el);
+  empty(cont).appendChild(el(ctx));
   next();
   // body...
 }

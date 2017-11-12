@@ -8,10 +8,16 @@ var axios = require('axios');
 var Webcam = require('webcamjs');
 var picture = require('../picture-card');
 var yo = require('yo-yo');
+var utils = require('../utils');
+var io = require('socket.io-client');
+var yo = require('yo-yo');
+
+
+var socket = io.connect('http://localhost:5151');
 
  
 
-page('/', header,loading, loadPicturesFetch, function (ctx, next) {
+page('/',utils.loadAuth, header,loading, loadPicturesFetch, function (ctx, next) {
   title('O-events');
   var main = document.getElementById('main-container');
     
@@ -23,6 +29,7 @@ page('/', header,loading, loadPicturesFetch, function (ctx, next) {
     const uploadButton =$('#uploadButton');
     const cancelPictures =$('#cancelPictures');
     
+
 function resetCam(a){
         
         if(a==='on'){
@@ -84,12 +91,17 @@ function resetCam(a){
     })
 })
 
+socket.on('image', function (image) {
+  var img = yo`<div class="col s12 m6 l4">${picture(image)}</div>`;
+  $('#picture-card').prepend(img);
+
+})
+
 function loadPictures(ctx, next) {
   request
     .get('/api/pictures')
     .end(function (err, res) {
       if (err) return console.log(err);
-
       ctx.pictures = res.body;
       next();
     })

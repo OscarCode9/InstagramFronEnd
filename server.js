@@ -9,8 +9,17 @@ var expressSession = require('express-session')
 var passport = require('passport')
 var client = ovents.createClient(config.client);
 var auth = require('./auth')
-var port = process.env.PORT || 5050
 
+var port = process.env.PORT || 5050
+const AWS = require('aws-sdk');
+
+
+var knox = require('knox');
+var clientAws = knox.createClient({
+  key: config.AWSconfig.key,
+  secret: config.AWSconfig.secret,
+  bucket: config.AWSconfig.bucket
+});
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads')
@@ -66,12 +75,17 @@ app.post('/login', passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/signin'
 }));
+app.get('/logout', function (req, res){
+  req.logout();
+  res.redirect('/')
 
+})
 app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email'}))
 app.get('/auth/facebook/callback', passport.authenticate('facebook',{
   successRedirect: '/',
   failureRedirect: '/signin'
 }))
+
 function ensureAuth (req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -79,6 +93,12 @@ function ensureAuth (req, res, next) {
   res.status(401).send({ error: 'not auntenticado'})
 }
 
+app.get('/whoami', function (req,res){
+  if (req.isAuthenticated()) {
+    return res.json(req.user)
+  }
+  res.json({auth: false})
+})
 
 app.get('/Triste9', function (req, res) {
   res.render('index', { title: 'O-events | Triste9' });
@@ -86,17 +106,51 @@ app.get('/Triste9', function (req, res) {
 
 app.get('/api/pictures', function (req, res, next) {
   client.listPictures(function(err, pictures){
+    
     console.log(pictures) 
     res.send(pictures); 
   })
 });
-
-app.post('/api/pictures',ensureAuth, function (req, res) {
+function getUrl(path, ext) {
+  const promise = new Promise(function (resolve, reject) {
+    clientAws.putFile(path, `${Date.now()}.${ext}`, { 'x-amz-acl': 'public-read' }, function (err, response) {
+      if (err) reject(err);
+      resolve(response.req.url);
+    })
+  })
+  return promise
+}
+app.post('/api/pictures',ensureAuth,function (req, res) {
   upload(req, res, function (err) {
     if (err) {
       return res.send(500, "Error uploading file");
     }
-    res.send('File uploaded');
+    var ext = req.file.filename.split('.').pop()
+    var name = `${Date.now()}.${ext}`;
+    getUrl(req.file.path,ext).then(function(url){
+      var user = req.user;
+      var token = req.user.token;
+      var username = req.user.username;
+      var src = url;
+      var datosUserPicture = {
+        liked: false,
+        likes: 0,
+        src: src,
+        userId: username,
+        user: {
+          username: username,
+          avatar: user.avatar,
+          name: user.name
+        }
+      }
+      client.savePicture(datosUserPicture,token, function (err, img) {
+        if (err) {
+          return res.status(500).send(err.message)
+        }else{
+          res.send(url)
+        }
+      })
+    })
   })
 })
 
@@ -114,11 +168,9 @@ app.get('/:username', function(req,res){
 });
 app.get('/:username/:id', function(req,res){
     res.render('index',{title: `O-events|${req.params.username} `});
-    
 });
 
 app.listen(port, function (err) {
   if (err) return console.log('Hubo un error'), process.exit(1);
-
   console.log('O-events  escuchando en el puerto: ' + port);
 })
