@@ -16,7 +16,7 @@ const config = {
     }
 
   },
-  secret: process.env.PLATZIGRAM_SECRET || 'pla4tzi',
+  secret: process.env.OVENTS_SECRET || 'pla4tzi',
 
   AWSconfig: {
     key: process.env.AWSKEY,
